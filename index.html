@@ -250,7 +250,11 @@
 
     <div class="mb-3">
       <label class="form-label">Nama Penuh Peserta</label>
-      <input type="text" id="inputNama" class="form-control" placeholder="SEPERTI DALAM KAD PENGENALAN" />
+      <input type="text" id="inputNama" class="form-control"
+       placeholder="SEPERTI DALAM KAD PENGENALAN"
+       style="text-transform: uppercase;"
+       oninput="this.value = this.value.toUpperCase();" />
+
     </div>
 
     <div class="mb-3">
@@ -517,6 +521,7 @@
 </script>
 </body>
 </html>
+
 
 
 
