@@ -61,7 +61,7 @@
       text-align:center;
       color:#111;
 
-      /* ✅ BORDER DAH DIBUANG */
+      /* border buang */
       border:0;
       outline:0;
       outline-offset:0;
@@ -69,16 +69,14 @@
       padding:18mm 18mm 20mm 18mm;
       background-image:radial-gradient(circle,#ffffff 0%, #fdfbf7 100%);
 
-      /* ✅ elak overflow jadi extra page */
+      /* elak extra page */
       overflow:hidden;
       box-shadow:none;
       transform:none;
     }
 
-    /* Preview scaling (supaya muat pada skrin) */
-    #certScaleWrap{
-      transform-origin: top center;
-    }
+    /* Preview scaling */
+    #certScaleWrap{ transform-origin: top center; }
 
     .logo-box{
       height:28mm;
@@ -90,8 +88,8 @@
       z-index:2;
     }
     .logo-img{
-      /* kekalkan setting terakhir anda (kalau nak ubah, bagitahu) */
-      max-height:25mm; /* logo besar 50% dari 22mm */
+      /* ✅ Logo kecil 30% (dari 33mm -> ~23mm) */
+      max-height:23mm;
       width:auto;
       display:block;
       object-fit:contain;
@@ -120,7 +118,6 @@
       margin-bottom:5mm;
     }
 
-    /* NAMA PESERTA */
     .participant-name{
       font-family:'Cinzel',serif;
       font-weight:800;
@@ -176,8 +173,8 @@
     }
 
     .signature-img{
-      /* ✅ TANDATANGAN BESAR 80%: 18mm -> 32.4mm */
-      height:50mm;
+      /* ✅ Tandatangan besar 80%: 18mm -> 32.4mm */
+      height:32.4mm;
       width:auto;
       display:block;
       object-fit:contain;
@@ -219,12 +216,7 @@
     }
 
     .spinner-border{ width:1.2rem; height:1.2rem; display:none; margin-right:8px; }
-
-    .btn-success{
-      padding:12px 40px;
-      font-weight:800;
-      border-radius:10px;
-    }
+    .btn-success{ padding:12px 40px; font-weight:800; border-radius:10px; }
 
     @page { size: A4 portrait; margin: 0; }
     @media print{
@@ -243,10 +235,6 @@
   <div class="input-card">
     <h4 class="text-center mb-3" style="color:var(--primary-blue);">Sistem Sijil Digital JPN Pahang</h4>
 
-    <div class="alert alert-info py-2 text-center small mb-3">
-      Kod demo: <strong>DEMO123</strong>
-    </div>
-
     <div id="statusMsg" class="small text-center mb-3" style="min-height:18px;color:#0f766e;"></div>
 
     <div class="mb-3">
@@ -261,8 +249,9 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label text-danger">Kod Rahsia Program</label>
+      <label class="form-label text-danger">Kod Program</label>
       <input type="text" id="inputKod" class="form-control" placeholder="Masukkan kod daripada penganjur" />
+      <div class="form-text">Sistem akan baca Nama Program, Tarikh dan Tempat dari Google Sheet berdasarkan kod ini.</div>
     </div>
 
     <button onclick="janaSijilSekarang()" id="btnJana"
@@ -300,15 +289,16 @@
 
             <div class="text-participation">telah menyertai dengan jayanya program</div>
             <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
-            <div class="program-details" id="displayMeta">Tarikh | Masa | Tempat</div>
+            <div class="program-details" id="displayMeta">Tarikh | Tempat</div>
           </div>
 
           <!-- TANDATANGAN -->
           <div class="signature-area">
             <img src="assets/sign.png" class="signature-img" alt="Tandatangan" crossorigin="anonymous">
             <div class="signature-line">
+              <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
               <div class="signer-name">HAJI AHMAD ZAMRI BIN MD ISA</div>
-              <div class="signer-title">PENGARAH PENDIDIKAN PAHANG</div>
+              <div class="signer-title">Jabatan Pendidikan Negeri Pahang</div>
             </div>
           </div>
 
@@ -320,26 +310,14 @@
       <button type="button" onclick="downloadSijilPDF()" class="btn btn-success btn-lg shadow">
         MUAT TURUN SIJIL (PDF A4)
       </button>
-
-      <p class="mt-3 text-muted small fst-italic">
-        Nota: Jika PDF kosong, punca biasanya transform/imej belum load. Kod ini dah buat “wait” sebelum jana.
-      </p>
     </div>
   </div>
 
 </div>
 
 <script>
-  // DATA DEMO
-  const dataDemo = [{
-    kod: "DEMO123",
-    program: "BENGKEL TRANSFORMASI DIGITAL & AI 2026",
-    tarikh: "20 Januari 2026",
-    masa: "8.30 Pagi - 4.30 Petang",
-    tempat: "Pusat Konvensyen JPN Pahang"
-  }];
-
-  const SCRIPT_URL = ""; // optional Apps Script
+  // ✅ LETAK URL WEB APP APPS SCRIPT ANDA DI SINI
+  const SCRIPT_URL = ""; // contoh: "https://script.google.com/macros/s/XXXX/exec"
 
   function setStatus(msg, color="#0f766e"){
     const el = document.getElementById("statusMsg");
@@ -356,7 +334,7 @@
     return clean.length >= 8 && clean.length <= 14;
   }
 
-  // Auto scale preview supaya muat skrin
+  // Auto scale preview
   function fitPreview(){
     const wrap = document.getElementById("certScaleWrap");
     const cert = document.getElementById("actual-certificate");
@@ -394,39 +372,21 @@
       return;
     }
 
-    setStatus("");
-    btn.disabled = true;
-    spinner.style.display = "inline-block";
-    btnText.textContent = "Menjana...";
-    document.getElementById("certificate-container").style.display = "none";
-
-    // DEMO
-    if(normalizeKod(kod) === "DEMO123"){
-      setTimeout(() => {
-        const d = dataDemo[0];
-        tampilkanSijil(
-          nama, ic,
-          d.program,
-          `${d.tarikh} | ${d.masa} | ${d.tempat}`
-        );
-        btn.disabled = false;
-        spinner.style.display = "none";
-        btnText.textContent = "Semak & Jana Sijil";
-        setStatus("Sijil demo berjaya dijana.");
-      }, 250);
+    if(!SCRIPT_URL){
+      alert("SCRIPT_URL belum diisi. Sila tampal URL Web App Apps Script.");
       return;
     }
 
-    // REAL-TIME (optional)
-    try{
-      if(!SCRIPT_URL){
-        alert("Mod real-time belum diaktifkan. Guna kod DEMO123 untuk ujian, atau masukkan SCRIPT_URL.");
-        setStatus("SCRIPT_URL kosong. Aktifkan Apps Script jika mahu mod real-time.", "#b45309");
-        return;
-      }
+    setStatus("");
+    btn.disabled = true;
+    spinner.style.display = "inline-block";
+    btnText.textContent = "Menyemak kod...";
+    document.getElementById("certificate-container").style.display = "none";
 
+    try{
       setStatus("Menyemak kod program...");
-      const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`;
+
+      const url = `${SCRIPT_URL}?kod=${encodeURIComponent(normalizeKod(kod))}`;
       const res = await fetch(url, { method:"GET", cache:"no-store" });
       if(!res.ok) throw new Error("HTTP " + res.status);
 
@@ -434,21 +394,24 @@
 
       if(out && out.ok && out.program){
         const p = out.program;
+
         tampilkanSijil(
-          nama, ic,
+          nama,
+          ic,
           p.nama_program || "NAMA PROGRAM",
-          `Tarikh: ${p.tarikh || "-"} | Masa: ${p.masa || "-"} | Tempat: ${p.tempat || "-"}`
+          `${p.tarikh || "-"} | ${p.tempat || "-"}`
         );
+
         setStatus("Kod sah. Sijil berjaya dijana.");
-      }else{
-        alert((out && out.message) ? out.message : "Kod Rahsia tidak dijumpai.");
+      } else {
+        alert((out && out.message) ? out.message : "Kod program tidak dijumpai.");
         setStatus("Kod tidak dijumpai.", "#b45309");
       }
-    }catch(e){
+    } catch(e){
       console.error(e);
       alert("Ralat sambungan / konfigurasi Apps Script.");
       setStatus("Ralat sambungan / konfigurasi Apps Script.", "#b91c1c");
-    }finally{
+    } finally {
       btn.disabled = false;
       spinner.style.display = "none";
       btnText.textContent = "Semak & Jana Sijil";
@@ -485,12 +448,12 @@
     if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
 
     try{
-      // 1) tunggu font siap
+      // font siap
       if(document.fonts && document.fonts.ready){
         try { await document.fonts.ready; } catch(e){}
       }
 
-      // 2) tunggu imej siap
+      // imej siap
       const imgs = Array.from(cert.querySelectorAll("img"));
       await Promise.all(imgs.map(img => new Promise(resolve => {
         if(img.complete && img.naturalWidth > 0) return resolve(true);
@@ -498,11 +461,10 @@
         img.onerror = () => resolve(true);
       })));
 
-      // 3) Matikan transform preview sementara
+      // matikan transform preview sementara
       const oldTransform = wrap ? wrap.style.transform : "";
       if(wrap) wrap.style.transform = "none";
 
-      // 4) html2pdf (cara asal) + paksa tinggal 1 page sahaja
       const opt = {
         margin: 0,
         filename: `Sijil_${namaPeserta}.pdf`,
@@ -521,8 +483,8 @@
 
       const worker = html2pdf().set(opt).from(cert).toPdf();
 
-      await worker.get('pdf').then((pdf) => {
-        // ✅ Buang page tambahan kosong (kalau wujud)
+      // ✅ pastikan tinggal 1 page sahaja
+      await worker.get("pdf").then((pdf) => {
         let total = pdf.internal.getNumberOfPages();
         while(total > 1){
           pdf.deletePage(total);
@@ -545,6 +507,3 @@
 </script>
 </body>
 </html>
-
-
-
