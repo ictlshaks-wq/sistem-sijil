@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <div class="text-center mb-3">
-  <img src="assets/logo.png"
-       alt="Logo JPN Pahang"
-       style="max-height:120px; width:auto; display:block; margin:0 auto 12px;">
-</div>
+  <title>Sistem Sijil Digital JPN Pahang</title>
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
 
   <!-- html2pdf (html2canvas + jsPDF) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -65,15 +61,12 @@
       text-align:center;
       color:#111;
 
-      /* border buang */
       border:0;
       outline:0;
-      outline-offset:0;
 
       padding:18mm 18mm 20mm 18mm;
       background-image:radial-gradient(circle,#ffffff 0%, #fdfbf7 100%);
 
-      /* elak extra page */
       overflow:hidden;
       box-shadow:none;
       transform:none;
@@ -92,7 +85,6 @@
       z-index:2;
     }
     .logo-img{
-      /* ✅ Logo kecil 30% (dari 33mm -> ~23mm) */
       max-height:30mm;
       width:auto;
       display:block;
@@ -164,12 +156,23 @@
       margin-top:5mm;
     }
 
+    /* No Siri (kanan atas) */
+    #certNoSiri{
+      position:absolute;
+      right:15mm;
+      top:18mm;
+      font-size:4mm;
+      font-weight:700;
+      color:#111;
+      z-index:3;
+    }
+
     /* TANDATANGAN */
     .signature-area{
       position:absolute;
       left:0;
       right:0;
-      bottom:25mm;
+      bottom:25mm;         /* ✅ naikkan kalau bawah sangat: kecilkan nombor ni (cth 28mm->25mm->22mm) */
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -177,43 +180,30 @@
     }
 
     .signature-img{
-      /* ✅ Tandatangan besar 80%: 18mm -> 32.4mm */
       height:48mm;
       width:auto;
       display:block;
       object-fit:contain;
-      margin-bottom:-15mm;
+      margin-bottom:-15mm; /* ✅ adjust rapat ke line */
     }
 
-.signature-line{
-  border-top:0.5mm solid #111;
-  width:90mm;
-  margin-left:auto;
-  margin-right:auto;
-  padding-top:3mm;
-  text-align:center;
-}
+    .signature-line{
+      border-top:0.5mm solid #111;
+      width:90mm;
+      margin-left:auto;
+      margin-right:auto;
+      padding-top:3mm;
+      text-align:center;
+    }
 
-
-.signer-name{
-  font-weight:800;
-  font-size:4.5mm;
-  text-transform:uppercase;
-  margin-bottom:1mm;
-
-  text-align:center;
-  white-space:nowrap;
-}
-
-
-
-.signer-title{
-  font-size:3.8mm;
-  color:#333;
-  line-height:1.25;
-  text-align:center;
-}
-
+    .signer-name{
+      font-weight:800;
+      font-size:4.5mm;
+      text-transform:uppercase;
+      margin-bottom:1mm;
+      text-align:center;
+      white-space:nowrap;
+    }
 
     .watermark{
       position:absolute;
@@ -248,6 +238,10 @@
 
   <!-- BORANG -->
   <div class="input-card">
+    <div class="text-center mb-2">
+      <img src="assets/logo.png" alt="Logo JPN Pahang" style="max-height:120px; width:auto; display:block; margin:0 auto 12px;" crossorigin="anonymous">
+    </div>
+
     <h4 class="text-center mb-3" style="color:var(--primary-blue);">Sistem Sijil Digital JPN Pahang</h4>
 
     <div id="statusMsg" class="small text-center mb-3" style="min-height:18px;color:#0f766e;"></div>
@@ -255,10 +249,9 @@
     <div class="mb-3">
       <label class="form-label">Nama Penuh Peserta</label>
       <input type="text" id="inputNama" class="form-control"
-       placeholder="SEPERTI DALAM KAD PENGENALAN"
-       style="text-transform: uppercase;"
-       oninput="this.value = this.value.toUpperCase();" />
-
+        placeholder="SEPERTI DALAM KAD PENGENALAN"
+        style="text-transform: uppercase;"
+        oninput="this.value = this.value.toUpperCase();" />
     </div>
 
     <div class="mb-3">
@@ -269,11 +262,10 @@
 
     <div class="mb-3">
       <label class="form-label text-danger">Kod Program</label>
-      <input type="text" id="inputKod"
-       placeholder="Masukkan kod daripada penganjur"
-       style="text-transform: uppercase;"
-       oninput="this.value = this.value.toUpperCase();" />
-
+      <input type="text" id="inputKod" class="form-control"
+        placeholder="Masukkan kod daripada penganjur"
+        style="text-transform: uppercase;"
+        oninput="this.value = this.value.toUpperCase();" />
       <div class="form-text">Sistem akan baca Nama Program, Tarikh dan Tempat dari Google Sheet berdasarkan kod ini.</div>
     </div>
 
@@ -282,87 +274,78 @@
       <div class="spinner-border text-light" role="status" id="loading"></div>
       <span id="btnText">Semak & Jana Sijil</span>
     </button>
-    <div style="
-    margin-top:8px;
-    text-align:center;
-    font-size:11px;
-    color:#6b7280;
-  ">
-    SISTEM INI DIBANGUNKAN OLEH UNIT TMK, SEKTOR PEMBELAJARAN, JPN PAHANG 2026
-  </div>
-</div>
+
+    <div style="margin-top:8px;text-align:center;font-size:11px;color:#6b7280;">
+      SISTEM INI DIBANGUNKAN OLEH UNIT TMK, SEKTOR PEMBELAJARAN, JPN PAHANG 2026
+    </div>
   </div>
 
   <!-- SIJIL -->
   <div id="certificate-container" class="text-center">
     <hr class="my-5">
 
-<div class="cert-viewport">
-  <div id="certScaleWrap">
-    <div id="actual-certificate" style="position:relative;">
+    <div class="cert-viewport">
+      <div id="certScaleWrap">
+        <div id="actual-certificate">
 
-      <!-- No Siri (KANAN ATAS) -->
-      <div id="certNoSiri" style="
-        position:absolute;
-        right:15mm;
-        top:18mm;
-        font-size:4mm;
-        font-weight:700;
-        color:#111;
-        z-index:3;
-      ">No. Siri: -</div>
+          <!-- No Siri (KANAN ATAS) -->
+          <div id="certNoSiri">No. Siri: -</div>
 
-      <!-- LOGO -->
-      <div class="logo-box">
-        <img src="assets/logo.png" class="logo-img" alt="Logo JPN" crossorigin="anonymous">
-      </div>
+          <!-- LOGO -->
+          <div class="logo-box">
+            <img src="assets/logo.png" class="logo-img" alt="Logo JPN" crossorigin="anonymous">
+          </div>
 
-      <div class="watermark">RASMI</div>
+          <div class="watermark">RASMI</div>
 
-      <!-- TAJUK SIJIL -->
-      <div class="cert-header">
-        <div class="cert-header-title">SIJIL<br>PENYERTAAN</div>
-      </div>
+          <!-- TAJUK SIJIL -->
+          <div class="cert-header">
+            <div class="cert-header-title">SIJIL<br>PENYERTAAN</div>
+          </div>
 
-      <!-- ISI -->
-      <div class="cert-body">
-        <div class="text-intro">Dengan penuh sukacita diperakui bahawa</div>
+          <!-- ISI -->
+          <div class="cert-body">
+            <div class="text-intro">Dengan penuh sukacita diperakui bahawa</div>
 
-        <div class="participant-name" id="displayNama">NAMA PESERTA</div>
+            <div class="participant-name" id="displayNama">NAMA PESERTA</div>
 
-        <div class="ic-text">No. K/P: <span id="displayIC">000000000000</span></div>
+            <div class="ic-text">No. K/P: <span id="displayIC">000000000000</span></div>
 
-        <div class="text-participation">telah menyertai dengan jayanya program</div>
-        <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
-        <div class="program-details" id="displayMeta">Tarikh | Tempat</div>
-      </div>
+            <div class="text-participation">telah menyertai dengan jayanya program</div>
+            <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
+            <div class="program-details" id="displayMeta">Tarikh | Tempat</div>
+          </div>
 
-      <!-- TANDATANGAN -->
-      <div class="signature-area">
-        <img src="assets/sign.png" class="signature-img" alt="Tandatangan" crossorigin="anonymous">
-        <div class="signature-line">
-          <div class="signer-name">HAJI AHMAD ZAMRI BIN MD ISA</div>
-          <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
+          <!-- TANDATANGAN -->
+          <div class="signature-area">
+            <img src="assets/sign.png" class="signature-img" alt="Tandatangan" crossorigin="anonymous">
+            <div class="signature-line">
+              <div class="signer-name">HAJI AHMAD ZAMRI BIN MD ISA</div>
+              <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
+            </div>
+          </div>
+
         </div>
       </div>
+    </div>
 
+    <div class="mt-4 mb-5 pb-5">
+      <button type="button" onclick="downloadSijilPDF()" class="btn btn-success btn-lg shadow">
+        MUAT TURUN SIJIL (PDF A4)
+      </button>
     </div>
   </div>
+
 </div>
 
-
 <script>
-  // ✅ LETAK URL WEB APP APPS SCRIPT ANDA DI SINI
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNUQXAQmupInbQEPgVpRa3jWxanslou8PlYtYzSCZuRtJi5HjR-vA-mlVjKL0ab3i1/exec"; // contoh: "https://script.google.com/macros/s/XXXX/exec"
+  // ✅ URL Web App Apps Script (kekalkan URL tuan)
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNUQXAQmupInbQEPgVpRa3jWxanslou8PlYtYzSCZuRtJi5HjR-vA-mlVjKL0ab3i1/exec";
 
   function setStatus(msg, color="#0f766e"){
     const el = document.getElementById("statusMsg");
     el.style.color = color;
     el.textContent = msg || "";
-  }
-
-  function normalizeKod(x){
-    return (x || "").toString().trim().toUpperCase();
   }
 
   function basicICOk(ic){
@@ -380,17 +363,106 @@
     const padding = 30;
     const available = viewport.clientWidth - padding;
     const certPxWidth = cert.getBoundingClientRect().width;
+
     let scale = available / certPxWidth;
     if(scale > 1) scale = 1;
     if(scale < 0.25) scale = 0.25;
+
     wrap.style.transform = `scale(${scale})`;
   }
 
   window.addEventListener("resize", () => {
-    if(document.getElementById("certificate-container").style.display === "block") fitPreview();
+    const cc = document.getElementById("certificate-container");
+    if(cc && cc.style.display === "block") fitPreview();
   });
 
-  <script>
+  async function janaSijilSekarang(){
+    const kod  = document.getElementById("inputKod").value.trim();
+    const nama = document.getElementById("inputNama").value.trim();
+    const ic   = document.getElementById("inputIC").value.trim();
+
+    const btn = document.getElementById("btnJana");
+    const spinner = document.getElementById("loading");
+    const btnText = document.getElementById("btnText");
+
+    if(!nama || !ic || !kod){
+      alert("Sila lengkapkan Nama, IC dan Kod Program.");
+      return;
+    }
+    if(!basicICOk(ic)){
+      alert("Format IC nampak tidak sah. Sila semak semula.");
+      return;
+    }
+    if(!SCRIPT_URL){
+      alert("SCRIPT_URL belum diisi.");
+      return;
+    }
+
+    setStatus("");
+    btn.disabled = true;
+    spinner.style.display = "inline-block";
+    btnText.textContent = "Menyemak kod...";
+    document.getElementById("certificate-container").style.display = "none";
+
+    try{
+      setStatus("Menyemak kod program...");
+
+      const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
+                + `&nama=${encodeURIComponent(nama)}`
+                + `&ic=${encodeURIComponent(ic)}`;
+
+      const res = await fetch(url, { method:"GET", cache:"no-store" });
+      if(!res.ok) throw new Error("HTTP " + res.status);
+
+      const out = await res.json();
+
+      if(out && out.ok && out.program){
+        const p = out.program;
+
+        // paparkan no siri
+        const elSiri = document.getElementById("certNoSiri");
+        if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
+
+        tampilkanSijil(
+          nama,
+          ic,
+          p.nama_program || "NAMA PROGRAM",
+          `${p.tarikh || "-"} | ${p.tempat || "-"}`
+        );
+
+        setStatus("Kod sah. Sijil berjaya dijana.");
+      } else {
+        alert((out && out.message) ? out.message : "Kod program tidak dijumpai.");
+        setStatus("Kod tidak dijumpai.", "#b45309");
+      }
+
+    } catch(e){
+      console.error(e);
+      alert("Ralat sambungan / konfigurasi Apps Script.");
+      setStatus("Ralat sambungan / konfigurasi Apps Script.", "#b91c1c");
+
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = "none";
+      btnText.textContent = "Semak & Jana Sijil";
+    }
+  }
+
+  function tampilkanSijil(nama, ic, program, meta){
+    document.getElementById("displayNama").innerText = (nama || "").toUpperCase();
+    document.getElementById("displayIC").innerText = (ic || "").replace(/\s+/g,"");
+    document.getElementById("displayProgram").innerText = (program || "").toUpperCase();
+    document.getElementById("displayMeta").innerText = meta || "";
+
+    const container = document.getElementById("certificate-container");
+    container.style.display = "block";
+
+    setTimeout(() => {
+      fitPreview();
+      window.scrollTo({ top: container.offsetTop, behavior:"smooth" });
+    }, 50);
+  }
+
   async function downloadSijilPDF(){
     const cert = document.getElementById("actual-certificate");
     const wrap = document.getElementById("certScaleWrap");
@@ -411,7 +483,7 @@
         try { await document.fonts.ready; } catch(e){}
       }
 
-      // tunggu semua imej siap
+      // tunggu imej siap (logo/tandatangan)
       const imgs = Array.from(cert.querySelectorAll("img"));
       await Promise.all(imgs.map(img => new Promise(resolve => {
         if(img.complete && img.naturalWidth > 0) return resolve(true);
@@ -463,8 +535,9 @@
     }
   }
 </script>
+
 </body>
-<html>
+</html>
 
 
 
