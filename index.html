@@ -51,10 +51,7 @@
       box-shadow:inset 0 2px 10px rgba(0,0,0,.12);
     }
 
-    /* ====== SIJIL A4 PORTRAIT (MM) ======
-       Lebar 210mm, Tinggi 297mm
-       Ini penting supaya PDF “penuh A4” betul-betul ikut ukuran
-    */
+    /* ====== SIJIL A4 PORTRAIT (MM) ====== */
     #actual-certificate{
       width:210mm;
       height:297mm;
@@ -64,12 +61,14 @@
       text-align:center;
       color:#111;
 
-      /* border seperti contoh anda */
-      border:14mm solid var(--primary-blue);
-      outline:2.2mm solid var(--gold-accent);
-      outline-offset:-18mm;
+      /* ✅ BUANG BORDER & OUTLINE */
+      border:0;
+      outline:0;
+      outline-offset:0;
 
+      /* ✅ Kekalkan spacing asal lebih kurang sama (gantikan border/padding lama) */
       padding:18mm 18mm 20mm 18mm;
+
       background-image:radial-gradient(circle,#ffffff 0%, #fdfbf7 100%);
 
       /* elak glitch html2canvas */
@@ -91,7 +90,8 @@
       z-index:2;
     }
     .logo-img{
-      max-height:22mm;
+      /* ✅ BESARKAN LOGO SIKIT */
+      max-height:26mm;
       width:auto;
       display:block;
       object-fit:contain;
@@ -120,12 +120,12 @@
       margin-bottom:5mm;
     }
 
-    /* ===== NAMA PESERTA: sama font & saiz macam NAMA BENGKEL, tapi hitam ===== */
+    /* NAMA PESERTA */
     .participant-name{
-      font-family:'Cinzel',serif;       /* sama macam tajuk program/bengkel (serif/tegas) */
+      font-family:'Cinzel',serif;
       font-weight:800;
-      font-size:9mm;                   /* sama macam program-name di bawah */
-      color:#000;                      /* hitam */
+      font-size:9mm;
+      color:#000;
       margin:6mm 0 4mm 0;
       text-transform:uppercase;
       letter-spacing:0.7mm;
@@ -176,7 +176,8 @@
     }
 
     .signature-img{
-      height:18mm;        /* BESARKAN tandatangan */
+      /* ✅ BESARKAN TANDATANGAN SIKIT */
+      height:22mm;
       width:auto;
       display:block;
       object-fit:contain;
@@ -225,7 +226,7 @@
       border-radius:10px;
     }
 
-    /* Print rules (kalau user tekan Ctrl+P pun cantik) */
+    /* Print rules */
     @page { size: A4 portrait; margin: 0; }
     @media print{
       body{ background:#fff; padding:0; }
@@ -318,8 +319,8 @@
 
     <div class="mt-4 mb-5 pb-5">
       <button type="button" onclick="downloadSijilPDF()" class="btn btn-success btn-lg shadow">
-  MUAT TURUN SIJIL (PDF A4)
-</button>
+        MUAT TURUN SIJIL (PDF A4)
+      </button>
 
       <p class="mt-3 text-muted small fst-italic">
         Nota: Jika PDF kosong, punca biasanya transform/imej belum load. Kod ini dah buat “wait” sebelum jana.
@@ -365,10 +366,10 @@
 
     const padding = 30;
     const available = viewport.clientWidth - padding;
-    const certPxWidth = cert.getBoundingClientRect().width; // mm -> px (browser kira)
+    const certPxWidth = cert.getBoundingClientRect().width;
     let scale = available / certPxWidth;
-    if(scale > 1) scale = 1;       // jangan besar lebih 100%
-    if(scale < 0.25) scale = 0.25; // jangan terlalu kecil
+    if(scale > 1) scale = 1;
+    if(scale < 0.25) scale = 0.25;
     wrap.style.transform = `scale(${scale})`;
   }
 
@@ -400,7 +401,6 @@
     btnText.textContent = "Menjana...";
     document.getElementById("certificate-container").style.display = "none";
 
-    // DEMO
     if(normalizeKod(kod) === "DEMO123"){
       setTimeout(() => {
         const d = dataDemo[0];
@@ -417,7 +417,6 @@
       return;
     }
 
-    // REAL-TIME (optional)
     try{
       if(!SCRIPT_URL){
         alert("Mod real-time belum diaktifkan. Guna kod DEMO123 untuk ujian, atau masukkan SCRIPT_URL.");
@@ -464,94 +463,71 @@
     const container = document.getElementById("certificate-container");
     container.style.display = "block";
 
-    // bagi browser sempat layout, baru scale preview
     setTimeout(() => {
       fitPreview();
       window.scrollTo({ top: container.offsetTop, behavior:"smooth" });
     }, 50);
   }
 
-  async function waitImagesLoaded(root){
-    const imgs = Array.from(root.querySelectorAll("img"));
-    await Promise.all(imgs.map(img => new Promise((resolve) => {
-      if(img.complete && img.naturalWidth > 0) return resolve(true);
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(true); // walaupun error, jangan sangkut
-    })));
-  }
-
   async function downloadSijilPDF(){
-  const cert = document.getElementById("actual-certificate");
-  const wrap = document.getElementById("certScaleWrap");
-  const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
+    const cert = document.getElementById("actual-certificate");
+    const wrap = document.getElementById("certScaleWrap");
+    const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
 
-  // keselamatan: pastikan cert wujud
-  if(!cert){
-    alert("Ralat: sijil tidak dijumpai.");
-    return;
-  }
-
-  // Disable button sekejap (elak double click)
-  const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
-  if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
-
-  try{
-    // 1) pastikan font siap
-    if(document.fonts && document.fonts.ready){
-      try { await document.fonts.ready; } catch(e){}
+    if(!cert){
+      alert("Ralat: sijil tidak dijumpai.");
+      return;
     }
 
-    // 2) pastikan imej siap load
-    const imgs = Array.from(cert.querySelectorAll("img"));
-    await Promise.all(imgs.map(img => new Promise(resolve => {
-      if(img.complete && img.naturalWidth > 0) return resolve(true);
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(true);
-    })));
+    const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
+    if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
 
-    // 3) Matikan transform preview sementara (punca biasa PDF kosong / gagal)
-    const oldTransform = wrap ? wrap.style.transform : "";
-    if(wrap) wrap.style.transform = "none";
+    try{
+      if(document.fonts && document.fonts.ready){
+        try { await document.fonts.ready; } catch(e){}
+      }
 
-    // 4) Setup opt
-    const opt = {
-      margin: 0,
-      filename: `Sijil_${namaPeserta}.pdf`,
-      image: { type: "jpeg", quality: 1 },
-      html2canvas: {
-        scale: 3,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        scrollX: 0,
-        scrollY: 0
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-    };
+      const imgs = Array.from(cert.querySelectorAll("img"));
+      await Promise.all(imgs.map(img => new Promise(resolve => {
+        if(img.complete && img.naturalWidth > 0) return resolve(true);
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(true);
+      })));
 
-    // 5) Jana PDF (try)
-    await html2pdf().set(opt).from(cert).save();
+      const oldTransform = wrap ? wrap.style.transform : "";
+      if(wrap) wrap.style.transform = "none";
 
-    // restore transform
-    if(wrap) wrap.style.transform = oldTransform;
+      const opt = {
+        margin: 0,
+        filename: `Sijil_${namaPeserta}.pdf`,
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: {
+          scale: 3,
+          backgroundColor: "#ffffff",
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          scrollX: 0,
+          scrollY: 0
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+      };
 
-  } catch(err){
-    console.error(err);
+      await html2pdf().set(opt).from(cert).save();
 
-    // Fallback yang pasti berfungsi: Print to PDF
-    alert(
-      "Muat turun PDF auto gagal (browser block/CORS). " +
-      "Saya buka mod Print. Pilih 'Save as PDF'."
-    );
+      if(wrap) wrap.style.transform = oldTransform;
 
-    // Fallback: Print (Ctrl+P)
-    window.print();
-
-  } finally {
-    if(btn){ btn.disabled = false; btn.innerText = "MUAT TURUN SIJIL (PDF A4)"; }
+    } catch(err){
+      console.error(err);
+      alert(
+        "Muat turun PDF auto gagal (browser block/CORS). " +
+        "Saya buka mod Print. Pilih 'Save as PDF'."
+      );
+      window.print();
+    } finally {
+      if(btn){ btn.disabled = false; btn.innerText = "MUAT TURUN SIJIL (PDF A4)"; }
+    }
   }
-}
 </script>
 </body>
 </html>
