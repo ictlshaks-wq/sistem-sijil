@@ -570,25 +570,24 @@ const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
       if(btn){ btn.disabled = false; btn.innerText = oldBtnText || "MUAT TURUN SIJIL (PDF A4)"; }
     }
   }
-  <script>
-function resetBorang(){
-  // 1) kosongkan input
+ <script>
+function resetBorang() {
   document.getElementById("nama").value = "";
   document.getElementById("ic").value = "";
   document.getElementById("kod").value = "";
 
-  // 2) sorok sijil (kalau container wujud)
-  const sijil = document.getElementById("certificate-container");
-  if (sijil) sijil.style.display = "none";
+  // sembunyi sijil
+  document.getElementById("certificate-container").style.display = "none";
 
-  // 3) buang mesej status (jika fungsi setStatus ada)
-  if (typeof setStatus === "function") setStatus("", "#2563eb");
+  // reset status
+  setStatus("Sedia untuk peserta baharu.");
 }
 </script>
 
 </script>
 </body>
 </html>
+
 
 
 
