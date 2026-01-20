@@ -435,8 +435,9 @@ const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
       if(out && out.ok && out.program){
         const p = out.program;
 
-        document.getElementById("certNoSiri").innerText =
-  "No. Siri: " + p.no_siri;
+const elSiri = document.getElementById("certNoSiri");
+if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
+
 
         tampilkanSijil(
           nama,
@@ -550,6 +551,7 @@ const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
 </script>
 </body>
 <html>
+
 
 
 
