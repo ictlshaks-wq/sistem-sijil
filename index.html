@@ -288,6 +288,11 @@
     font-size:11px;
     color:#6b7280;
   ">
+      <button id="btnReset" type="button" onclick="resetBorang()"
+  style="margin-top:10px; width:100%; background:#e5e7eb; color:#111827; padding:10px; border-radius:10px; border:none; font-weight:700; cursor:pointer;">
+  Reset / Peserta Baharu
+</button>
+
     SISTEM INI DIBANGUNKAN OLEH UNIT TMK, SEKTOR PEMBELAJARAN, JPN PAHANG 2026
   </div>
 </div>
@@ -551,9 +556,26 @@ const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
       if(btn){ btn.disabled = false; btn.innerText = oldBtnText || "MUAT TURUN SIJIL (PDF A4)"; }
     }
   }
+  <script>
+function resetBorang(){
+  // 1) kosongkan input
+  document.getElementById("nama").value = "";
+  document.getElementById("ic").value = "";
+  document.getElementById("kod").value = "";
+
+  // 2) sorok sijil (kalau container wujud)
+  const sijil = document.getElementById("certificate-container");
+  if (sijil) sijil.style.display = "none";
+
+  // 3) buang mesej status (jika fungsi setStatus ada)
+  if (typeof setStatus === "function") setStatus("", "#2563eb");
+}
+</script>
+
 </script>
 </body>
 </html>
+
 
 
 
