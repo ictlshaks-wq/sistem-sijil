@@ -61,21 +61,17 @@
       text-align:center;
       color:#111;
 
-      /* ✅ BORDER DAH DIBUANG */
+      /* Border buang */
       border:0;
       outline:0;
       outline-offset:0;
 
-      /* ✅ Kekalkan spacing asal */
       padding:18mm 18mm 20mm 18mm;
-
       background-image:radial-gradient(circle,#ffffff 0%, #fdfbf7 100%);
 
-      /* ✅ PENTING: elak page kosong (lebihan 1-2px jadi page baru) */
+      /* penting */
       overflow:hidden;
       box-shadow:none;
-
-      /* elak glitch html2canvas */
       transform:none;
     }
 
@@ -92,8 +88,8 @@
       z-index:2;
     }
     .logo-img{
-      /* ✅ LOGO BESAR 20% (asal 22mm -> 26.4mm) */
-      max-height:26.4mm;
+      /* ✅ LOGO BESAR 50% (asal 22mm -> 33mm) */
+      max-height:33mm;
       width:auto;
       display:block;
       object-fit:contain;
@@ -279,7 +275,6 @@
 
     <div class="cert-viewport">
       <div id="certScaleWrap">
-        <!-- ✅ buang shadow-lg supaya tak jadi page kosong -->
         <div id="actual-certificate">
 
           <!-- LOGO -->
@@ -483,15 +478,18 @@
     }
 
     const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
+    const oldBtnText = btn ? btn.innerText : "";
     if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
 
+    // ✅ Cara paling “confirm” buang page kosong:
+    // Render jadi 1 imej A4, lepas tu masukkan 1 page sahaja dalam PDF.
     try{
-      // pastikan font siap
+      // 1) pastikan font siap
       if(document.fonts && document.fonts.ready){
         try { await document.fonts.ready; } catch(e){}
       }
 
-      // pastikan imej siap
+      // 2) pastikan imej siap
       const imgs = Array.from(cert.querySelectorAll("img"));
       await Promise.all(imgs.map(img => new Promise(resolve => {
         if(img.complete && img.naturalWidth > 0) return resolve(true);
@@ -499,29 +497,30 @@
         img.onerror = () => resolve(true);
       })));
 
-      // matikan transform preview sementara
+      // 3) matikan transform preview sementara
       const oldTransform = wrap ? wrap.style.transform : "";
       if(wrap) wrap.style.transform = "none";
 
-      // ✅ elak pagebreak automatik (punca page kosong)
-      const opt = {
-        margin: 0,
-        filename: `Sijil_${namaPeserta}.pdf`,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 3,
-          backgroundColor: "#ffffff",
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["avoid-all"] }
-      };
+      // 4) html2canvas -> satu canvas penuh A4
+      const canvas = await window.html2canvas(cert, {
+        scale: 3,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0
+      });
 
-      await html2pdf().set(opt).from(cert).save();
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+      // 5) jsPDF -> satu muka surat sahaja (A4)
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("p", "mm", "a4");
+
+      // 210mm x 297mm tepat => confirm 1 page
+      pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+      pdf.save(`Sijil_${namaPeserta}.pdf`);
 
       // restore transform
       if(wrap) wrap.style.transform = oldTransform;
@@ -534,10 +533,9 @@
       );
       window.print();
     } finally {
-      if(btn){ btn.disabled = false; btn.innerText = "MUAT TURUN SIJIL (PDF A4)"; }
+      if(btn){ btn.disabled = false; btn.innerText = oldBtnText || "MUAT TURUN SIJIL (PDF A4)"; }
     }
   }
 </script>
 </body>
 </html>
-
