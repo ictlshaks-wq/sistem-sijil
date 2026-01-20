@@ -478,14 +478,58 @@ if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
   }
 
   async function downloadSijilPDF(){
-    const cert = document.getElementById("actual-certificate");
-    const wrap = document.getElementById("certScaleWrap");
-    const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
+  const cert = document.getElementById("actual-certificate");
+  const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
 
-    if(!cert){
-      alert("Ralat: sijil tidak dijumpai.");
-      return;
+  if(!cert){
+    alert("Ralat: sijil tidak dijumpai.");
+    return;
+  }
+
+  const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
+  const oldText = btn ? btn.innerText : "";
+  if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
+
+  try{
+    // tunggu font siap
+    if(document.fonts && document.fonts.ready){
+      try { await document.fonts.ready; } catch(e){}
     }
+
+    // tunggu semua imej siap (logo/tandatangan)
+    const imgs = Array.from(cert.querySelectorAll("img"));
+    await Promise.all(imgs.map(img => new Promise(resolve => {
+      if(img.complete && img.naturalWidth > 0) return resolve(true);
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(true);
+    })));
+
+    const opt = {
+      margin: 0,
+      filename: `Sijil_${namaPeserta}.pdf`,
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: {
+        scale: 3,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    await html2pdf().set(opt).from(cert).save();
+
+  } catch(err){
+    console.error(err);
+    alert("Ralat semasa menjana PDF. Sila cuba semula.");
+  } finally {
+    if(btn){ btn.disabled = false; btn.innerText = oldText || "MUAT TURUN SIJIL (PDF A4)"; }
+  }
+}
+
 
     const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
     const oldBtnText = btn ? btn.innerText : "";
@@ -551,6 +595,7 @@ if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
 </script>
 </body>
 <html>
+
 
 
 
