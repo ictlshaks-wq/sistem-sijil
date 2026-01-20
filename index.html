@@ -400,9 +400,10 @@
     try{
       setStatus("Menyemak kod program...");
 
-      const url = `${SCRIPT_URL}?kod=${encodeURIComponent(normalizeKod(kod))}`
+const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
           + `&nama=${encodeURIComponent(nama)}`
           + `&ic=${encodeURIComponent(ic)}`;
+
 
       const res = await fetch(url, { method:"GET", cache:"no-store" });
       if(!res.ok) throw new Error("HTTP " + res.status);
@@ -524,6 +525,7 @@
 </script>
 </body>
 </html>
+
 
 
 
