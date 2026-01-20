@@ -450,36 +450,8 @@
     window.scrollTo({ top: document.getElementById("certificate-container").offsetTop, behavior:"smooth" });
   }
 
-  function downloadSijilPDF(){
-    const element = document.getElementById("actual-certificate");
-    const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
 
-    // Pastikan imej sempat load sebelum convert
-    const imgs = element.querySelectorAll("img");
-    const waits = Array.from(imgs).map(img => {
-      if(img.complete && img.naturalWidth > 0) return Promise.resolve();
-      return new Promise(res => { img.onload = res; img.onerror = res; });
-    });
-
-    Promise.all(waits).then(() => {
-      const opt = {
-        margin: 0,
-        filename: `Sijil_${namaPeserta}.pdf`,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 2.5,
-          backgroundColor: "#ffffff",
-          useCORS: true,      // GitHub Pages ok
-          allowTaint: true,
-          scrollX: 0,
-          scrollY: -window.scrollY
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-      };
-
-      html2pdf().set(opt).from(element).save();
-    });
-  }
 </script>
 </body>
 </html>
+
