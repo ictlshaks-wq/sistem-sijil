@@ -297,58 +297,59 @@
   <div id="certificate-container" class="text-center">
     <hr class="my-5">
 
-    <div class="cert-viewport">
-      <div id="certScaleWrap">
-        <div id="actual-certificate">
-     <div id="certNoSiri" style="
-  position:absolute;
-  right:18mm;
-  top:18mm;
-  font-size:4mm;
-  font-weight:700;
-  color:#111;
-  z-index:3;
-">
-  No. Siri: -
-</div>
+<div class="cert-viewport">
+  <div id="certScaleWrap">
+    <div id="actual-certificate" style="position:relative;">
 
+      <!-- No Siri (KANAN ATAS) -->
+      <div id="certNoSiri" style="
+        position:absolute;
+        right:18mm;
+        top:18mm;
+        font-size:4mm;
+        font-weight:700;
+        color:#111;
+        z-index:3;
+      ">No. Siri: -</div>
 
-          <!-- LOGO -->
-          <div class="logo-box">
+      <!-- LOGO -->
+      <div class="logo-box">
+        <img src="assets/logo.png" class="logo-img" alt="Logo JPN" crossorigin="anonymous">
+      </div>
 
-          <div class="cert-body">
-            <div class="text-intro">Dengan penuh sukacita diperakui bahawa</div>
+      <div class="watermark">RASMI</div>
 
-            <div class="participant-name" id="displayNama">NAMA PESERTA</div>
+      <!-- TAJUK SIJIL -->
+      <div class="cert-header">
+        <div class="cert-header-title">SIJIL<br>PENYERTAAN</div>
+      </div>
 
-            <div class="ic-text">No. K/P: <span id="displayIC">000000000000</span></div>
+      <!-- ISI -->
+      <div class="cert-body">
+        <div class="text-intro">Dengan penuh sukacita diperakui bahawa</div>
 
-            <div class="text-participation">telah menyertai dengan jayanya program</div>
-            <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
-            <div class="program-details" id="displayMeta">Tarikh | Tempat</div>
-          </div>
+        <div class="participant-name" id="displayNama">NAMA PESERTA</div>
 
-          <!-- TANDATANGAN -->
-          <div class="signature-area">
-            <img src="assets/sign.png" class="signature-img" alt="Tandatangan" crossorigin="anonymous">
-            <div class="signature-line">
-              <div class="signer-name">HAJI AHMAD ZAMRI BIN MD ISA</div>
-              <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
-            </div>
-          </div>
+        <div class="ic-text">No. K/P: <span id="displayIC">000000000000</span></div>
 
+        <div class="text-participation">telah menyertai dengan jayanya program</div>
+        <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
+        <div class="program-details" id="displayMeta">Tarikh | Tempat</div>
+      </div>
+
+      <!-- TANDATANGAN -->
+      <div class="signature-area">
+        <img src="assets/sign.png" class="signature-img" alt="Tandatangan" crossorigin="anonymous">
+        <div class="signature-line">
+          <div class="signer-name">HAJI AHMAD ZAMRI BIN MD ISA</div>
+          <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
         </div>
       </div>
-    </div>
 
-    <div class="mt-4 mb-5 pb-5">
-      <button type="button" onclick="downloadSijilPDF()" class="btn btn-success btn-lg shadow">
-        MUAT TURUN SIJIL (PDF A4)
-      </button>
     </div>
   </div>
-
 </div>
+
 
 <script>
   // ✅ LETAK URL WEB APP APPS SCRIPT ANDA DI SINI
@@ -550,6 +551,7 @@ if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
 </script>
 </body>
 <html>
+
 
 
 
