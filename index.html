@@ -390,158 +390,28 @@
     if(document.getElementById("certificate-container").style.display === "block") fitPreview();
   });
 
-  async function janaSijilSekarang(){
-    const kod  = document.getElementById("inputKod").value.trim();
-    const nama = document.getElementById("inputNama").value.trim();
-    const ic   = document.getElementById("inputIC").value.trim();
-
-    const btn = document.getElementById("btnJana");
-    const spinner = document.getElementById("loading");
-    const btnText = document.getElementById("btnText");
-
-    if(!nama || !ic || !kod){
-      alert("Sila lengkapkan Nama, IC dan Kod Program.");
-      return;
-    }
-    if(!basicICOk(ic)){
-      alert("Format IC nampak tidak sah. Sila semak semula.");
-      return;
-    }
-
-    if(!SCRIPT_URL){
-      alert("SCRIPT_URL belum diisi. Sila tampal URL Web App Apps Script.");
-      return;
-    }
-
-    setStatus("");
-    btn.disabled = true;
-    spinner.style.display = "inline-block";
-    btnText.textContent = "Menyemak kod...";
-    document.getElementById("certificate-container").style.display = "none";
-
-    try{
-      setStatus("Menyemak kod program...");
-
-const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
-          + `&nama=${encodeURIComponent(nama)}`
-          + `&ic=${encodeURIComponent(ic)}`;
-
-
-      const res = await fetch(url, { method:"GET", cache:"no-store" });
-      if(!res.ok) throw new Error("HTTP " + res.status);
-
-      const out = await res.json();
-
-      if(out && out.ok && out.program){
-        const p = out.program;
-
-const elSiri = document.getElementById("certNoSiri");
-if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
-
-
-        tampilkanSijil(
-          nama,
-          ic,
-          p.nama_program || "NAMA PROGRAM",
-          `${p.tarikh || "-"} | ${p.tempat || "-"}`
-        );
-
-        setStatus("Kod sah. Sijil berjaya dijana.");
-      } else {
-        alert((out && out.message) ? out.message : "Kod program tidak dijumpai.");
-        setStatus("Kod tidak dijumpai.", "#b45309");
-      }
-    } catch(e){
-      console.error(e);
-      alert("Ralat sambungan / konfigurasi Apps Script.");
-      setStatus("Ralat sambungan / konfigurasi Apps Script.", "#b91c1c");
-    } finally {
-      btn.disabled = false;
-      spinner.style.display = "none";
-      btnText.textContent = "Semak & Jana Sijil";
-    }
-  }
-
-  function tampilkanSijil(nama, ic, program, meta){
-    document.getElementById("displayNama").innerText = (nama || "").toUpperCase();
-    document.getElementById("displayIC").innerText = (ic || "").replace(/\s+/g,"");
-    document.getElementById("displayProgram").innerText = (program || "").toUpperCase();
-    document.getElementById("displayMeta").innerText = meta || "";
-
-    const container = document.getElementById("certificate-container");
-    container.style.display = "block";
-
-    setTimeout(() => {
-      fitPreview();
-      window.scrollTo({ top: container.offsetTop, behavior:"smooth" });
-    }, 50);
-  }
-
+  <script>
   async function downloadSijilPDF(){
-  const cert = document.getElementById("actual-certificate");
-  const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
+    const cert = document.getElementById("actual-certificate");
+    const wrap = document.getElementById("certScaleWrap");
+    const namaPeserta = (document.getElementById("displayNama")?.innerText || "Peserta").replace(/\s+/g,"_");
 
-  if(!cert){
-    alert("Ralat: sijil tidak dijumpai.");
-    return;
-  }
-
-  const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
-  const oldText = btn ? btn.innerText : "";
-  if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
-
-  try{
-    // tunggu font siap
-    if(document.fonts && document.fonts.ready){
-      try { await document.fonts.ready; } catch(e){}
+    if(!cert){
+      alert("Ralat: sijil tidak dijumpai.");
+      return;
     }
-
-    // tunggu semua imej siap (logo/tandatangan)
-    const imgs = Array.from(cert.querySelectorAll("img"));
-    await Promise.all(imgs.map(img => new Promise(resolve => {
-      if(img.complete && img.naturalWidth > 0) return resolve(true);
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(true);
-    })));
-
-    const opt = {
-      margin: 0,
-      filename: `Sijil_${namaPeserta}.pdf`,
-      image: { type: "jpeg", quality: 1 },
-      html2canvas: {
-        scale: 3,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        scrollX: 0,
-        scrollY: 0
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-    };
-
-    await html2pdf().set(opt).from(cert).save();
-
-  } catch(err){
-    console.error(err);
-    alert("Ralat semasa menjana PDF. Sila cuba semula.");
-  } finally {
-    if(btn){ btn.disabled = false; btn.innerText = oldText || "MUAT TURUN SIJIL (PDF A4)"; }
-  }
-}
-
 
     const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
-    const oldBtnText = btn ? btn.innerText : "";
+    const oldText = btn ? btn.innerText : "";
     if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
 
     try{
-      // font siap
+      // tunggu font siap
       if(document.fonts && document.fonts.ready){
         try { await document.fonts.ready; } catch(e){}
       }
 
-      // imej siap
+      // tunggu semua imej siap
       const imgs = Array.from(cert.querySelectorAll("img"));
       await Promise.all(imgs.map(img => new Promise(resolve => {
         if(img.complete && img.naturalWidth > 0) return resolve(true);
@@ -571,7 +441,7 @@ if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
 
       const worker = html2pdf().set(opt).from(cert).toPdf();
 
-      // ✅ pastikan tinggal 1 page sahaja
+      // pastikan 1 page sahaja
       await worker.get("pdf").then((pdf) => {
         let total = pdf.internal.getNumberOfPages();
         while(total > 1){
@@ -589,12 +459,13 @@ if(elSiri) elSiri.innerText = "No. Siri: " + (p.no_siri || "-");
       console.error(err);
       alert("Ralat semasa menjana PDF. Sila cuba semula.");
     } finally {
-      if(btn){ btn.disabled = false; btn.innerText = oldBtnText || "MUAT TURUN SIJIL (PDF A4)"; }
+      if(btn){ btn.disabled = false; btn.innerText = oldText || "MUAT TURUN SIJIL (PDF A4)"; }
     }
   }
 </script>
 </body>
 <html>
+
 
 
 
