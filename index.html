@@ -61,24 +61,26 @@
       text-align:center;
       color:#111;
 
-      /* ✅ BUANG BORDER & OUTLINE */
+      /* ✅ BORDER DAH DIBUANG */
       border:0;
       outline:0;
       outline-offset:0;
 
-      /* ✅ Kekalkan spacing asal lebih kurang sama (gantikan border/padding lama) */
+      /* ✅ Kekalkan spacing asal */
       padding:18mm 18mm 20mm 18mm;
 
       background-image:radial-gradient(circle,#ffffff 0%, #fdfbf7 100%);
 
+      /* ✅ PENTING: elak page kosong (lebihan 1-2px jadi page baru) */
+      overflow:hidden;
+      box-shadow:none;
+
       /* elak glitch html2canvas */
-      transform: none;
+      transform:none;
     }
 
-    /* Preview scaling (supaya muat pada skrin) */
-    #certScaleWrap{
-      transform-origin: top center;
-    }
+    /* Preview scaling */
+    #certScaleWrap{ transform-origin: top center; }
 
     .logo-box{
       height:28mm;
@@ -90,8 +92,8 @@
       z-index:2;
     }
     .logo-img{
-      /* ✅ BESARKAN LOGO SIKIT */
-      max-height:26mm;
+      /* ✅ LOGO BESAR 20% (asal 22mm -> 26.4mm) */
+      max-height:26.4mm;
       width:auto;
       display:block;
       object-fit:contain;
@@ -120,7 +122,6 @@
       margin-bottom:5mm;
     }
 
-    /* NAMA PESERTA */
     .participant-name{
       font-family:'Cinzel',serif;
       font-weight:800;
@@ -176,12 +177,12 @@
     }
 
     .signature-img{
-      /* ✅ BESARKAN TANDATANGAN SIKIT */
-      height:22mm;
+      /* ✅ TANDATANGAN BESAR 50% (asal 18mm -> 27mm) */
+      height:27mm;
       width:auto;
       display:block;
       object-fit:contain;
-      margin-bottom:-4mm;
+      margin-bottom:-5mm;
     }
 
     .signature-line{
@@ -226,7 +227,6 @@
       border-radius:10px;
     }
 
-    /* Print rules */
     @page { size: A4 portrait; margin: 0; }
     @media print{
       body{ background:#fff; padding:0; }
@@ -279,7 +279,8 @@
 
     <div class="cert-viewport">
       <div id="certScaleWrap">
-        <div id="actual-certificate" class="shadow-lg">
+        <!-- ✅ buang shadow-lg supaya tak jadi page kosong -->
+        <div id="actual-certificate">
 
           <!-- LOGO -->
           <div class="logo-box">
@@ -401,6 +402,7 @@
     btnText.textContent = "Menjana...";
     document.getElementById("certificate-container").style.display = "none";
 
+    // DEMO
     if(normalizeKod(kod) === "DEMO123"){
       setTimeout(() => {
         const d = dataDemo[0];
@@ -417,6 +419,7 @@
       return;
     }
 
+    // REAL-TIME (optional)
     try{
       if(!SCRIPT_URL){
         alert("Mod real-time belum diaktifkan. Guna kod DEMO123 untuk ujian, atau masukkan SCRIPT_URL.");
@@ -483,10 +486,12 @@
     if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
 
     try{
+      // pastikan font siap
       if(document.fonts && document.fonts.ready){
         try { await document.fonts.ready; } catch(e){}
       }
 
+      // pastikan imej siap
       const imgs = Array.from(cert.querySelectorAll("img"));
       await Promise.all(imgs.map(img => new Promise(resolve => {
         if(img.complete && img.naturalWidth > 0) return resolve(true);
@@ -494,9 +499,11 @@
         img.onerror = () => resolve(true);
       })));
 
+      // matikan transform preview sementara
       const oldTransform = wrap ? wrap.style.transform : "";
       if(wrap) wrap.style.transform = "none";
 
+      // ✅ elak pagebreak automatik (punca page kosong)
       const opt = {
         margin: 0,
         filename: `Sijil_${namaPeserta}.pdf`,
@@ -510,11 +517,13 @@
           scrollX: 0,
           scrollY: 0
         },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all"] }
       };
 
       await html2pdf().set(opt).from(cert).save();
 
+      // restore transform
       if(wrap) wrap.style.transform = oldTransform;
 
     } catch(err){
