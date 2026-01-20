@@ -288,307 +288,37 @@
     font-size:11px;
     color:#6b7280;
   ">
-    <button
-  type="button"
-  onclick="resetBorang()"
-  style="
-    margin-top:12px;
-    width:100%;
-    background:#e5e7eb;
-    color:#111827;
-    padding:12px;
-    border-radius:12px;
-    border:none;
-    font-weight:700;
-    font-size:16px;
-    cursor:pointer;
-  ">
+      <button id="btnReset" type="button" onclick="resetBorang()"
+  style="margin-top:10px; width:100%; background:#e5e7eb; color:#111827; padding:10px; border-radius:10px; border:none; font-weight:700; cursor:pointer;">
   Reset / Peserta Baharu
 </button>
-
 
     SISTEM INI DIBANGUNKAN OLEH UNIT TMK, SEKTOR PEMBELAJARAN, JPN PAHANG 2026
   </div>
 </div>
-  </div>
-
-  <!-- SIJIL -->
-  <div id="certificate-container" class="text-center">
-    <hr class="my-5">
-
-    <div class="cert-viewport">
-      <div id="certScaleWrap">
-       <div id="actual-certificate" style="position:relative;">
-
-          <!-- LOGO -->
-          <div class="logo-box">
-            <img src="assets/logo.png" class="logo-img" alt="Logo JPN" crossorigin="anonymous">
-          </div>
-
-          <div class="watermark">RASMI</div>
-
-<!-- NO SIRI SIJIL -->
-<div id="certNoSiri" style="position:absolute; right:40px; top:40px; font-size:13px; font-weight:600; color:#555;">
-  No. Siri: -
-</div>
-
-
-<div class="cert-header">
-
-
-          <div class="cert-header">
-            <div class="cert-header-title">SIJIL<br>PENYERTAAN</div>
-          </div>
-
-          <div class="cert-body">
-            <div class="text-intro">Dengan penuh sukacita diperakui bahawa</div>
-
-            <div class="participant-name" id="displayNama">NAMA PESERTA</div>
-
-            <div class="ic-text">No. K/P: <span id="displayIC">000000000000</span></div>
-
-            <div class="text-participation">telah menyertai dengan jayanya program</div>
-            <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
-            <div class="program-details" id="displayMeta">Tarikh | Tempat</div>
-          </div>
-
-          <!-- TANDATANGAN -->
-          <div class="signature-area">
-            <img src="assets/sign.png" class="signature-img" alt="Tandatangan" crossorigin="anonymous">
-            <div class="signature-line">
-              <div class="signer-name">HAJI AHMAD ZAMRI BIN MD ISA</div>
-              <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-4 mb-5 pb-5">
-      <button type="button" onclick="downloadSijilPDF()" class="btn btn-success btn-lg shadow">
-        MUAT TURUN SIJIL (PDF A4)
-      </button>
-    </div>
-  </div>
-
-</div>
-
-<script>
-  // ✅ LETAK URL WEB APP APPS SCRIPT ANDA DI SINI
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNUQXAQmupInbQEPgVpRa3jWxanslou8PlYtYzSCZuRtJi5HjR-vA-mlVjKL0ab3i1/exec"; // contoh: "https://script.google.com/macros/s/XXXX/exec"
-
-  function setStatus(msg, color="#0f766e"){
-    const el = document.getElementById("statusMsg");
-    el.style.color = color;
-    el.textContent = msg || "";
-  }
-
-  function normalizeKod(x){
-    return (x || "").toString().trim().toUpperCase();
-  }
-
-  function basicICOk(ic){
-    const clean = (ic || "").replace(/[^0-9]/g, "");
-    return clean.length >= 8 && clean.length <= 14;
-  }
-
-  // Auto scale preview
-  function fitPreview(){
-    const wrap = document.getElementById("certScaleWrap");
-    const cert = document.getElementById("actual-certificate");
-    const viewport = document.querySelector(".cert-viewport");
-    if(!wrap || !cert || !viewport) return;
-
-    const padding = 30;
-    const available = viewport.clientWidth - padding;
-    const certPxWidth = cert.getBoundingClientRect().width;
-    let scale = available / certPxWidth;
-    if(scale > 1) scale = 1;
-    if(scale < 0.25) scale = 0.25;
-    wrap.style.transform = `scale(${scale})`;
-  }
-
-  window.addEventListener("resize", () => {
-    if(document.getElementById("certificate-container").style.display === "block") fitPreview();
-  });
-
-  async function janaSijilSekarang(){
-    const kod  = document.getElementById("inputKod").value.trim();
-    const nama = document.getElementById("inputNama").value.trim();
-    const ic   = document.getElementById("inputIC").value.trim();
-
-    const btn = document.getElementById("btnJana");
-    const spinner = document.getElementById("loading");
-    const btnText = document.getElementById("btnText");
-
-    if(!nama || !ic || !kod){
-      alert("Sila lengkapkan Nama, IC dan Kod Program.");
-      return;
-    }
-    if(!basicICOk(ic)){
-      alert("Format IC nampak tidak sah. Sila semak semula.");
-      return;
-    }
-
-    if(!SCRIPT_URL){
-      alert("SCRIPT_URL belum diisi. Sila tampal URL Web App Apps Script.");
-      return;
-    }
-
-    setStatus("");
-    btn.disabled = true;
-    spinner.style.display = "inline-block";
-    btnText.textContent = "Menyemak kod...";
-    document.getElementById("certificate-container").style.display = "none";
-
-    try{
-      setStatus("Menyemak kod program...");
-
-const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
-          + `&nama=${encodeURIComponent(nama)}`
-          + `&ic=${encodeURIComponent(ic)}`;
-
-
-      const res = await fetch(url, { method:"GET", cache:"no-store" });
-      if(!res.ok) throw new Error("HTTP " + res.status);
-
-      const out = await res.json();
-
-      if(out && out.ok && out.program){
-        const p = out.program;
-
-        document.getElementById("certNoSiri").innerText =
-  "No. Siri: " + p.no_siri;
-
-        tampilkanSijil(
-          nama,
-          ic,
-          p.nama_program || "NAMA PROGRAM",
-          `${p.tarikh || "-"} | ${p.tempat || "-"}`
-        );
-
-        setStatus("Kod sah. Sijil berjaya dijana.");
-      } else {
-        alert((out && out.message) ? out.message : "Kod program tidak dijumpai.");
-        setStatus("Kod tidak dijumpai.", "#b45309");
-      }
-    } catch(e){
-      console.error(e);
-      alert("Ralat sambungan / konfigurasi Apps Script.");
-      setStatus("Ralat sambungan / konfigurasi Apps Script.", "#b91c1c");
-    } finally {
-      btn.disabled = false;
-      spinner.style.display = "none";
-      btnText.textContent = "Semak & Jana Sijil";
-    }
-  }
-
-  function tampilkanSijil(nama, ic, program, meta){
-    document.getElementById("displayNama").innerText = (nama || "").toUpperCase();
-    document.getElementById("displayIC").innerText = (ic || "").replace(/\s+/g,"");
-    document.getElementById("displayProgram").innerText = (program || "").toUpperCase();
-    document.getElementById("displayMeta").innerText = meta || "";
-
-    const container = document.getElementById("certificate-container");
-    container.style.display = "block";
-
-    setTimeout(() => {
-      fitPreview();
-      window.scrollTo({ top: container.offsetTop, behavior:"smooth" });
-    }, 50);
-  }
-
-  async function downloadSijilPDF(){
-    const cert = document.getElementById("actual-certificate");
-    const wrap = document.getElementById("certScaleWrap");
-    const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
-
-    if(!cert){
-      alert("Ralat: sijil tidak dijumpai.");
-      return;
-    }
-
-    const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
-    const oldBtnText = btn ? btn.innerText : "";
-    if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
-
-    try{
-      // font siap
-      if(document.fonts && document.fonts.ready){
-        try { await document.fonts.ready; } catch(e){}
-      }
-
-      // imej siap
-      const imgs = Array.from(cert.querySelectorAll("img"));
-      await Promise.all(imgs.map(img => new Promise(resolve => {
-        if(img.complete && img.naturalWidth > 0) return resolve(true);
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(true);
-      })));
-
-      // matikan transform preview sementara
-      const oldTransform = wrap ? wrap.style.transform : "";
-      if(wrap) wrap.style.transform = "none";
-
-      const opt = {
-        margin: 0,
-        filename: `Sijil_${namaPeserta}.pdf`,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 3,
-          backgroundColor: "#ffffff",
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-      };
-
-      const worker = html2pdf().set(opt).from(cert).toPdf();
-
-      // ✅ pastikan tinggal 1 page sahaja
-      await worker.get("pdf").then((pdf) => {
-        let total = pdf.internal.getNumberOfPages();
-        while(total > 1){
-          pdf.deletePage(total);
-          total = pdf.internal.getNumberOfPages();
-        }
-      });
-
-      await worker.save();
-
-      // restore transform
-      if(wrap) wrap.style.transform = oldTransform;
-
-    } catch(err){
-      console.error(err);
-      alert("Ralat semasa menjana PDF. Sila cuba semula.");
-    } finally {
+@@ -551,31 +556,48 @@
       if(btn){ btn.disabled = false; btn.innerText = oldBtnText || "MUAT TURUN SIJIL (PDF A4)"; }
     }
   }
- <script>
-function resetBorang() {
+  <script>
+function resetBorang(){
+  // 1) kosongkan input
   document.getElementById("nama").value = "";
   document.getElementById("ic").value = "";
   document.getElementById("kod").value = "";
 
-  // sembunyi sijil
-  document.getElementById("certificate-container").style.display = "none";
+  // 2) sorok sijil (kalau container wujud)
+  const sijil = document.getElementById("certificate-container");
+  if (sijil) sijil.style.display = "none";
 
-  // reset status
-  setStatus("Sedia untuk peserta baharu.");
+  // 3) buang mesej status (jika fungsi setStatus ada)
+  if (typeof setStatus === "function") setStatus("", "#2563eb");
 }
 </script>
 
 </script>
 </body>
 </html>
-
-
 
 
 
