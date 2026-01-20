@@ -265,7 +265,11 @@
 
     <div class="mb-3">
       <label class="form-label text-danger">Kod Program</label>
-      <input type="text" id="inputKod" class="form-control" placeholder="Masukkan kod daripada penganjur" />
+      <input type="text" id="inputKod"
+       placeholder="Masukkan kod daripada penganjur"
+       style="text-transform: uppercase;"
+       oninput="this.value = this.value.toUpperCase();" />
+
       <div class="form-text">Sistem akan baca Nama Program, Tarikh dan Tempat dari Google Sheet berdasarkan kod ini.</div>
     </div>
 
@@ -525,6 +529,7 @@ const url = `${SCRIPT_URL}?kod=${encodeURIComponent(kod)}`
 </script>
 </body>
 </html>
+
 
 
 
