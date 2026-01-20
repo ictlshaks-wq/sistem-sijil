@@ -480,23 +480,39 @@
   }
 
   async function downloadSijilPDF(){
-    const cert = document.getElementById("actual-certificate");
-    const wrap = document.getElementById("certScaleWrap");
-    const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
+  const cert = document.getElementById("actual-certificate");
+  const wrap = document.getElementById("certScaleWrap");
+  const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
 
-    // 1) Pastikan fonts siap
+  // keselamatan: pastikan cert wujud
+  if(!cert){
+    alert("Ralat: sijil tidak dijumpai.");
+    return;
+  }
+
+  // Disable button sekejap (elak double click)
+  const btn = document.querySelector('button[onclick="downloadSijilPDF()"]');
+  if(btn){ btn.disabled = true; btn.innerText = "Sedang jana PDF..."; }
+
+  try{
+    // 1) pastikan font siap
     if(document.fonts && document.fonts.ready){
-      try{ await document.fonts.ready; }catch(e){}
+      try { await document.fonts.ready; } catch(e){}
     }
 
-    // 2) Pastikan imej siap load
-    await waitImagesLoaded(cert);
+    // 2) pastikan imej siap load
+    const imgs = Array.from(cert.querySelectorAll("img"));
+    await Promise.all(imgs.map(img => new Promise(resolve => {
+      if(img.complete && img.naturalWidth > 0) return resolve(true);
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(true);
+    })));
 
-    // 3) Matikan transform preview sementara (INI punca biasa PDF kosong)
-    const oldTransform = wrap.style.transform;
-    wrap.style.transform = "none";
+    // 3) Matikan transform preview sementara (punca biasa PDF kosong / gagal)
+    const oldTransform = wrap ? wrap.style.transform : "";
+    if(wrap) wrap.style.transform = "none";
 
-    // 4) html2pdf options: A4 portrait betul-betul penuh
+    // 4) Setup opt
     const opt = {
       margin: 0,
       filename: `Sijil_${namaPeserta}.pdf`,
@@ -506,20 +522,36 @@
         backgroundColor: "#ffffff",
         useCORS: true,
         allowTaint: true,
+        logging: false,
         scrollX: 0,
         scrollY: 0
       },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
     };
 
-    try{
-      await html2pdf().set(opt).from(cert).save();
-    }finally{
-      // restore preview scale
-      wrap.style.transform = oldTransform || "";
-      fitPreview();
-    }
+    // 5) Jana PDF (try)
+    await html2pdf().set(opt).from(cert).save();
+
+    // restore transform
+    if(wrap) wrap.style.transform = oldTransform;
+
+  } catch(err){
+    console.error(err);
+
+    // Fallback yang pasti berfungsi: Print to PDF
+    alert(
+      "Muat turun PDF auto gagal (browser block/CORS). " +
+      "Saya buka mod Print. Pilih 'Save as PDF'."
+    );
+
+    // Fallback: Print (Ctrl+P)
+    window.print();
+
+  } finally {
+    if(btn){ btn.disabled = false; btn.innerText = "MUAT TURUN SIJIL (PDF A4)"; }
   }
+}
 </script>
 </body>
 </html>
+
