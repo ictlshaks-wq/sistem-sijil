@@ -9,17 +9,16 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
 
-  <!-- html2pdf -->
+  <!-- html2pdf (html2canvas + jsPDF) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
     :root{
-      --primary-blue:#2c3e50;
+      --primary-blue:#0B3A74;
       --gold-accent:#bc9355;
-      --bg-light:#f4f7f6;
-      --paper:#ffffff;
+      --bg-light:#eef2f7;
     }
 
     body{
@@ -39,199 +38,199 @@
     }
     .form-label{ font-weight:800; color:var(--primary-blue); }
 
-    /* Pratonton */
+    /* Container sijil */
     #certificate-container{ display:none; margin-top:26px; }
 
     .cert-viewport{
       overflow:auto;
       background:#d1d5db;
-      padding:18px 10px;
+      padding:22px 10px;
       border-radius:12px;
       display:flex;
       justify-content:center;
       box-shadow:inset 0 2px 10px rgba(0,0,0,.12);
     }
 
-    /* =========================
-       SIJIL A4 SEBENAR (mm)
-       Tinggi 297mm x Lebar 210mm
-       ========================= */
+    /* ====== SIJIL A4 PORTRAIT (MM) ======
+       Lebar 210mm, Tinggi 297mm
+       Ini penting supaya PDF “penuh A4” betul-betul ikut ukuran
+    */
     #actual-certificate{
       width:210mm;
       height:297mm;
-      background:var(--paper);
-      position:relative;
       box-sizing:border-box;
-
-      /* Border biru */
-      border:10mm solid var(--primary-blue);
-
-      /* susun kandungan */
+      background:#fff;
+      position:relative;
       text-align:center;
-      color:#333;
-      display:flex;
-      flex-direction:column;
+      color:#111;
+
+      /* border seperti contoh anda */
+      border:14mm solid var(--primary-blue);
+      outline:2.2mm solid var(--gold-accent);
+      outline-offset:-18mm;
+
+      padding:18mm 18mm 20mm 18mm;
+      background-image:radial-gradient(circle,#ffffff 0%, #fdfbf7 100%);
+
+      /* elak glitch html2canvas */
+      transform: none;
     }
 
-    /* Garis emas dalam (tidak kacau layout) */
-    #actual-certificate::before{
-      content:"";
-      position:absolute;
-      inset:6mm;
-      border:1.2mm solid var(--gold-accent);
-      pointer-events:none;
+    /* Preview scaling (supaya muat pada skrin) */
+    #certScaleWrap{
+      transform-origin: top center;
     }
 
-    /* Kawasan kandungan (padding dalam sijil) */
-    .cert-content{
-      position:relative;
-      z-index:2;
-      height:100%;
-      padding:18mm 16mm 16mm; /* ruang selesa */
-      box-sizing:border-box;
-
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      align-items:center;
-    }
-
-    /* Logo */
     .logo-box{
+      height:28mm;
       display:flex;
       justify-content:center;
       align-items:center;
       margin-top:2mm;
-      margin-bottom:2mm;
+      position:relative;
+      z-index:2;
     }
     .logo-img{
-      height:28mm; /* BESAR & stabil */
+      max-height:22mm;
       width:auto;
       display:block;
       object-fit:contain;
     }
 
-    /* Tajuk sijil */
     .cert-header-title{
       font-family:'Cinzel',serif;
       font-size:20mm;
       color:var(--gold-accent);
-      letter-spacing:2mm;
-      line-height:1.05;
       margin-top:2mm;
-      margin-bottom:2mm;
+      letter-spacing:2.5mm;
+      line-height:1.05;
+      position:relative;
+      z-index:2;
+      text-transform:uppercase;
     }
 
     .cert-body{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      gap:4mm;
-      width:100%;
+      margin-top:8mm;
+      position:relative;
+      z-index:2;
     }
 
-    .text-intro{ font-size:5mm; margin:0; }
+    .text-intro{
+      font-size:5mm;
+      margin-bottom:5mm;
+    }
 
-    /* ===============================
-       NAMA PESERTA: SAMA MACAM PROGRAM
-       Font Cinzel + saiz sama + HITAM
-       =============================== */
+    /* ===== NAMA PESERTA: sama font & saiz macam NAMA BENGKEL, tapi hitam ===== */
     .participant-name{
-      font-family:'Cinzel',serif;
-      font-weight:700;
-      font-size:9mm;     /* sama dengan .program-name */
-      color:#000;        /* HITAM */
+      font-family:'Cinzel',serif;       /* sama macam tajuk program/bengkel (serif/tegas) */
+      font-weight:800;
+      font-size:9mm;                   /* sama macam program-name di bawah */
+      color:#000;                      /* hitam */
+      margin:6mm 0 4mm 0;
       text-transform:uppercase;
-      margin:2mm 0 1mm;
+      letter-spacing:0.7mm;
+      padding-bottom:2.5mm;
+      border-bottom:0.8mm solid var(--gold-accent);
+      display:inline-block;
       width:100%;
     }
 
-    .name-line{
-      width:88%;
-      height:0.6mm;
-      background:var(--gold-accent);
-      margin:0 auto 2mm;
-      opacity:.95;
+    .ic-text{
+      font-size:4.7mm;
+      margin-top:2mm;
+      margin-bottom:8mm;
+    }
+
+    .text-participation{
+      font-size:5mm;
+      margin:4mm 0 3mm 0;
     }
 
     .program-name{
       font-family:'Cinzel',serif;
-      font-weight:700;
-      color:var(--primary-blue);
-      font-size:9mm;     /* sama dengan participant */
-      line-height:1.2;
+      font-weight:800;
+      color:#0b1f3b;
+      font-size:9mm;
+      line-height:1.25;
       text-transform:uppercase;
-      margin:2mm 0 1mm;
-      padding:0 6mm;
+      letter-spacing:0.6mm;
+      margin:0;
     }
 
     .program-details{
       font-size:4.4mm;
-      color:#555;
-      margin-top:1mm;
+      color:#444;
+      margin-top:5mm;
     }
 
-    /* Tandatangan */
+    /* TANDATANGAN */
     .signature-area{
-      width:100%;
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:18mm;
       display:flex;
-      justify-content:flex-end;
-      align-items:flex-end;
-      margin-top:6mm;
+      flex-direction:column;
+      align-items:center;
+      z-index:2;
     }
-    .sigbox{
-      width:70mm;
-      text-align:center;
-    }
+
     .signature-img{
-      height:34mm;   /* BESARKAN TANDATANGAN */
+      height:18mm;        /* BESARKAN tandatangan */
       width:auto;
       display:block;
       object-fit:contain;
-      margin:0 auto -4mm;
+      margin-bottom:-4mm;
     }
+
     .signature-line{
-      border-top:0.6mm solid #333;
+      border-top:0.5mm solid #111;
+      width:90mm;
       padding-top:3mm;
     }
+
     .signer-name{
       font-weight:800;
-      font-size:4.6mm;
+      font-size:4.5mm;
       text-transform:uppercase;
       margin-bottom:1mm;
     }
+
     .signer-title{
       font-size:3.8mm;
-      color:#444;
+      color:#333;
       line-height:1.25;
     }
 
-    /* Watermark */
     .watermark{
       position:absolute;
       top:50%;
       left:50%;
       transform:translate(-50%,-50%) rotate(-35deg);
-      font-size:44mm;
+      font-size:40mm;
       color:rgba(188,147,85,0.06);
       font-family:'Cinzel',serif;
       z-index:1;
       pointer-events:none;
       user-select:none;
       white-space:nowrap;
+      text-transform:uppercase;
     }
 
     .spinner-border{ width:1.2rem; height:1.2rem; display:none; margin-right:8px; }
-    .btn-success{ padding:12px 40px; font-weight:800; border-radius:10px; }
 
-    /* Print betul-betul A4 */
+    .btn-success{
+      padding:12px 40px;
+      font-weight:800;
+      border-radius:10px;
+    }
+
+    /* Print rules (kalau user tekan Ctrl+P pun cantik) */
     @page { size: A4 portrait; margin: 0; }
     @media print{
       body{ background:#fff; padding:0; }
-      .input-card, .btn, .alert, hr, .text-muted{ display:none !important; }
+      .input-card, .cert-viewport, .btn, hr, p { display:none !important; }
       #certificate-container{ display:block !important; }
-      .cert-viewport{ padding:0 !important; background:#fff !important; box-shadow:none !important; }
       #actual-certificate{ box-shadow:none !important; }
     }
   </style>
@@ -278,42 +277,38 @@
     <hr class="my-5">
 
     <div class="cert-viewport">
-      <div id="actual-certificate" class="shadow-lg">
-        <div class="watermark">RASMI</div>
+      <div id="certScaleWrap">
+        <div id="actual-certificate" class="shadow-lg">
 
-        <div class="cert-content">
           <!-- LOGO -->
-          <div>
-            <div class="logo-box">
-              <img src="./assets/logo.png" class="logo-img" alt="Logo JPN">
-            </div>
+          <div class="logo-box">
+            <img src="assets/logo.png" class="logo-img" alt="Logo JPN" crossorigin="anonymous">
+          </div>
 
+          <div class="watermark">RASMI</div>
+
+          <div class="cert-header">
             <div class="cert-header-title">SIJIL<br>PENYERTAAN</div>
           </div>
 
           <div class="cert-body">
-            <p class="text-intro">Dengan penuh sukacita diperakui bahawa</p>
+            <div class="text-intro">Dengan penuh sukacita diperakui bahawa</div>
 
             <div class="participant-name" id="displayNama">NAMA PESERTA</div>
-            <div class="name-line"></div>
 
-            <p class="text-intro">No. K/P: <span id="displayIC">000000-00-0000</span></p>
+            <div class="ic-text">No. K/P: <span id="displayIC">000000000000</span></div>
 
-            <div style="margin-top:4mm;">
-              <div class="text-intro" style="font-size:4.8mm;">telah menyertai dengan jayanya program</div>
-              <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
-              <div class="program-details" id="displayMeta">Tarikh | Masa | Tempat</div>
-            </div>
+            <div class="text-participation">telah menyertai dengan jayanya program</div>
+            <div class="program-name" id="displayProgram">NAMA PROGRAM</div>
+            <div class="program-details" id="displayMeta">Tarikh | Masa | Tempat</div>
           </div>
 
           <!-- TANDATANGAN -->
           <div class="signature-area">
-            <div class="sigbox">
-              <img src="./assets/sign.png" class="signature-img" alt="Tandatangan">
-              <div class="signature-line">
-                <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
-                <div class="signer-title">Jabatan Pendidikan Negeri Pahang</div>
-              </div>
+            <img src="assets/sign.png" class="signature-img" alt="Tandatangan" crossorigin="anonymous">
+            <div class="signature-line">
+              <div class="signer-name">PENGARAH PENDIDIKAN NEGERI PAHANG</div>
+              <div class="signer-title">Jabatan Pendidikan Negeri Pahang</div>
             </div>
           </div>
 
@@ -326,7 +321,7 @@
         MUAT TURUN SIJIL (PDF A4)
       </button>
       <p class="mt-3 text-muted small fst-italic">
-        Nota: Pastikan fail imej berada di <b>./assets/logo.png</b> dan <b>./assets/sign.png</b>.
+        Nota: Jika PDF kosong, punca biasanya transform/imej belum load. Kod ini dah buat “wait” sebelum jana.
       </p>
     </div>
   </div>
@@ -343,8 +338,7 @@
     tempat: "Pusat Konvensyen JPN Pahang"
   }];
 
-  // Optional Apps Script
-  const SCRIPT_URL = ""; // contoh: "https://script.google.com/macros/s/AKfycb.../exec";
+  const SCRIPT_URL = ""; // optional Apps Script
 
   function setStatus(msg, color="#0f766e"){
     const el = document.getElementById("statusMsg");
@@ -360,6 +354,26 @@
     const clean = (ic || "").replace(/[^0-9]/g, "");
     return clean.length >= 8 && clean.length <= 14;
   }
+
+  // Auto scale preview supaya muat skrin
+  function fitPreview(){
+    const wrap = document.getElementById("certScaleWrap");
+    const cert = document.getElementById("actual-certificate");
+    const viewport = document.querySelector(".cert-viewport");
+    if(!wrap || !cert || !viewport) return;
+
+    const padding = 30;
+    const available = viewport.clientWidth - padding;
+    const certPxWidth = cert.getBoundingClientRect().width; // mm -> px (browser kira)
+    let scale = available / certPxWidth;
+    if(scale > 1) scale = 1;       // jangan besar lebih 100%
+    if(scale < 0.25) scale = 0.25; // jangan terlalu kecil
+    wrap.style.transform = `scale(${scale})`;
+  }
+
+  window.addEventListener("resize", () => {
+    if(document.getElementById("certificate-container").style.display === "block") fitPreview();
+  });
 
   async function janaSijilSekarang(){
     const kod  = document.getElementById("inputKod").value.trim();
@@ -392,7 +406,7 @@
         tampilkanSijil(
           nama, ic,
           d.program,
-          `Tarikh: ${d.tarikh} | Masa: ${d.masa} | Tempat: ${d.tempat}`
+          `${d.tarikh} | ${d.masa} | ${d.tempat}`
         );
         btn.disabled = false;
         spinner.style.display = "none";
@@ -402,7 +416,7 @@
       return;
     }
 
-    // REAL-TIME (Apps Script)
+    // REAL-TIME (optional)
     try{
       if(!SCRIPT_URL){
         alert("Mod real-time belum diaktifkan. Guna kod DEMO123 untuk ujian, atau masukkan SCRIPT_URL.");
@@ -442,16 +456,70 @@
 
   function tampilkanSijil(nama, ic, program, meta){
     document.getElementById("displayNama").innerText = (nama || "").toUpperCase();
-    document.getElementById("displayIC").innerText = ic || "";
+    document.getElementById("displayIC").innerText = (ic || "").replace(/\s+/g,"");
     document.getElementById("displayProgram").innerText = (program || "").toUpperCase();
     document.getElementById("displayMeta").innerText = meta || "";
 
-    document.getElementById("certificate-container").style.display = "block";
-    window.scrollTo({ top: document.getElementById("certificate-container").offsetTop, behavior:"smooth" });
+    const container = document.getElementById("certificate-container");
+    container.style.display = "block";
+
+    // bagi browser sempat layout, baru scale preview
+    setTimeout(() => {
+      fitPreview();
+      window.scrollTo({ top: container.offsetTop, behavior:"smooth" });
+    }, 50);
   }
 
+  async function waitImagesLoaded(root){
+    const imgs = Array.from(root.querySelectorAll("img"));
+    await Promise.all(imgs.map(img => new Promise((resolve) => {
+      if(img.complete && img.naturalWidth > 0) return resolve(true);
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(true); // walaupun error, jangan sangkut
+    })));
+  }
 
+  async function downloadSijilPDF(){
+    const cert = document.getElementById("actual-certificate");
+    const wrap = document.getElementById("certScaleWrap");
+    const namaPeserta = (document.getElementById("displayNama").innerText || "Peserta").replace(/\s+/g,"_");
+
+    // 1) Pastikan fonts siap
+    if(document.fonts && document.fonts.ready){
+      try{ await document.fonts.ready; }catch(e){}
+    }
+
+    // 2) Pastikan imej siap load
+    await waitImagesLoaded(cert);
+
+    // 3) Matikan transform preview sementara (INI punca biasa PDF kosong)
+    const oldTransform = wrap.style.transform;
+    wrap.style.transform = "none";
+
+    // 4) html2pdf options: A4 portrait betul-betul penuh
+    const opt = {
+      margin: 0,
+      filename: `Sijil_${namaPeserta}.pdf`,
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: {
+        scale: 3,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    try{
+      await html2pdf().set(opt).from(cert).save();
+    }finally{
+      // restore preview scale
+      wrap.style.transform = oldTransform || "";
+      fitPreview();
+    }
+  }
 </script>
 </body>
 </html>
-
